@@ -1,103 +1,87 @@
-// ArticleController.java
-@RestController
-@RequestMapping("/articles")
+1. Создайте новый проект Spring Boot.
+
+2. В файле pom.xml добавьте зависимости для Spring Boot Starter Web и Thymeleaf:
+
+
+xml
+<dependencies>
+    <!-- Spring Boot Starter Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    
+    <!-- Thymeleaf -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+</dependencies>
+
+
+3. Создайте контроллер для обработки запросов:
+
+java
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
 public class ArticleController {
-    
-    private final ArticleService articleService;
-    
-    public ArticleController(ArticleService articleService) {
-        this.articleService = articleService;
+
+    // Обработчик GET-запроса на главную страницу
+    @GetMapping("/")
+    public String home(Model model) {
+        // Добавляем данные в модель для передачи в шаблон тимлифа
+        model.addAttribute("pageTitle", "Статьи");
+
+        return "index";
     }
-    
-    // Получение всех статей
-    @GetMapping
-    public List<Article> getAllArticles() {
-        return articleService.getAllArticles();
-    }
-    
-    // Получение статьи по идентификатору
-    @GetMapping("/{id}")
-    public Article getArticleById(@PathVariable Long id) {
-        return articleService.getArticleById(id);
-    }
-    
-    // Создание статьи
-    @PostMapping
-    public Article createArticle(@RequestBody Article article) {
-        return articleService.createArticle(article);
-    }
-    
-    // Обновление статьи
-    @PutMapping("/{id}")
-    public Article updateArticle(@PathVariable Long id, @RequestBody Article article) {
-        return articleService.updateArticle(id, article);
-    }
-    
-    // Удаление статьи
-    @DeleteMapping("/{id}")
-    public void deleteArticle(@PathVariable Long id) {
-        articleService.deleteArticle(id);
+
+    // Обработчик GET-запроса на страницу со списком статей
+    @GetMapping("/articles")
+    public String articles(Model model) {
+        // Добавляем данные в модель для передачи в шаблон тимлифа
+        model.addAttribute("pageTitle", "Список статей");
+
+        // Здесь можно добавить логику для получения списка статей из базы данных или другого источника
+
+        return "articles";
     }
 }
 
-java
-// Article.java
-@Entity
-@Table(name = "articles")
-public class Article {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(nullable = false)
-    private String title;
-    
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
-    
-    // Геттеры и сеттеры
-    // ...
-}
 
-java
-// ArticleService.java
-@Service
-public class ArticleService {
-    
-    private final ArticleRepository articleRepository;
-    
-    public ArticleService(ArticleRepository articleRepository) {
-        this.articleRepository = articleRepository;
-    }
-    
-    public List<Article> getAllArticles() {
-        return articleRepository.findAll();
-    }
-    
-    public Article getArticleById(Long id) {
-        return articleRepository.findById(id).orElseThrow(() -> new NotFoundException("Статья не найдена"));
-    }
-    
-    public Article createArticle(Article article) {
-        return articleRepository.save(article);
-    }
-    
-    public Article updateArticle(Long id, Article updatedArticle) {
-        Article existingArticle = getArticleById(id);
-        existingArticle.setTitle(updatedArticle.getTitle());
-        existingArticle.setContent(updatedArticle.getContent());
-        return articleRepository.save(existingArticle);
-    }
-    
-    public void deleteArticle(Long id) {
-        Article existingArticle = getArticleById(id);
-        articleRepository.delete(existingArticle);
-    }
-}
+4. Создайте файл шаблона Thymeleaf для главной страницы (src/main/resources/templates/index.html):
 
-java
-// ArticleRepository.java
-@Repository
-public interface ArticleRepository extends JpaRepository<Article, Long> {
-}
+html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Статьи</title>
+</head>
+<body>
+    <h1 th:text="${pageTitle}">Статьи</h1>
+    <p>Добро пожаловать на главную страницу со статьями!</p>
+    <a href="/articles">Перейти к списку статей</a>
+</body>
+</html>
+
+
+5. Создайте файл шаблона Thymeleaf для страницы со списком статей (src/main/resources/templates/articles.html):
+
+html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Список статей</title>
+</head>
+<body>
+    <h1 th:text="${pageTitle}">Список статей</h1>
+    <p>Здесь будет список статей...</p>
+</body>
+</html>
+
+
+6. Запустите приложение Spring Boot и откройте веб-браузер по адресу http://localhost:8080. Вы должны увидеть главную страницу со ссылкой на список статей.
